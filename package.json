@@ -1,0 +1,15 @@
+{
+  "name": "routes-table",
+  "version": "1.0.0",
+  "description": "discover routes from the filesystem",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Michael Rawlings <ml.rawlings@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "by-key": "^1.0.0",
+    "sort-routes": "^1.0.0"
+  }
+}
