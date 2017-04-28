@@ -37,34 +37,50 @@ function build(dir, options, cb) {
 
     var routes = [];
 
-    fs.readdir(dir, (err, routeNames) => {
-        if(err) return cb(err);
+    if (options.index) {
+        delete options.index;
+        addRoutes('', dir, options, routes, (err) => {
+            cb(err, normalize(routes));
+        });
+    } else {
+        fs.readdir(dir, (err, routeNames) => {
+            if(err) return cb(err);
 
-        var remaining = routeNames.length;
+            var remaining = routeNames.length;
+            var error;
 
-        routeNames.map(routeName => {
-            var routeDir = path.join(dir, routeName);
-            var subroutesDir = path.join(routeDir, 'routes');
-
-            fs.stat(subroutesDir, (err, stat) => {
-                if(!err && stat.isDirectory()) {
-                    var subroutesOptions = Object.assign({}, options, { path:options.path+'/'+routeName });
-                    return build(subroutesDir, subroutesOptions, (err, subroutes) => {
-                        if(err) return cb(err);
-
-                        routes.push(subroutes);
-                        if(!--remaining) cb(null, normalize(routes));
-                    })
-                } else {
-                    try {
-                        routes.push(buildRoute(routeDir, routeName, options));
-                        if(!--remaining) cb(null, normalize(routes));
-                    } catch(e) {
-                        cb(e);
-                    }
-                }
+            routeNames.map(routeName => {
+                var routeDir = path.join(dir, routeName);
+                addRoutes(routeName, routeDir, options, routes, (err) => {
+                    if (error) return;
+                    else if (error = err) cb(err);
+                    else if (!--remaining) cb(err, normalize(routes));
+                });
             });
         });
+    }
+}
+
+function addRoutes(routeName, routeDir, options, routes, cb) {
+    var subroutesDir = path.join(routeDir, 'routes');
+
+    fs.stat(subroutesDir, (err, stat) => {
+        if(!err && stat.isDirectory()) {
+            var subroutesOptions = Object.assign({}, options, { path:options.path+'/'+routeName });
+            return build(subroutesDir, subroutesOptions, (err, subroutes) => {
+                if(err) return cb(err);
+
+                routes.push(subroutes);
+                cb();
+            })
+        } else {
+            try {
+                routes.push(buildRoute(routeDir, routeName, options));
+                cb();
+            } catch(e) {
+                cb(e);
+            }
+        }
     });
 }
 
