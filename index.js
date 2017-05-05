@@ -11,6 +11,10 @@ var validRouteKeys = {
     __dirname:1
 };
 
+function isDotFile(routeName) {
+    return (/(^|\/)\.[^\/\.]/g).test(routeName);
+}
+
 exports.build = function(dir, options, cb) {
     if(!cb && typeof options == 'function') {
         cb = options;
@@ -75,6 +79,8 @@ function addRoutes(routeName, routeDir, options, routes, cb) {
             })
         } else {
             try {
+                // We should ignore dotfiles
+                if (isDotFile(routeName)) return cb();
                 routes.push(buildRoute(routeDir, routeName, options));
                 cb();
             } catch(e) {
