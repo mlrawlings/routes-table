@@ -66,6 +66,15 @@ function build(dir, options, cb) {
 }
 
 function addRoutes(routeName, routeDir, options, routes, cb) {
+    try {
+        // We should ignore dotfiles
+        if (!isDotFile(routeName)) {
+            routes.push(buildRoute(routeDir, routeName, options));
+        }
+    } catch(err) {
+        cb(err);
+    }
+
     var subroutesDir = path.join(routeDir, 'routes');
 
     fs.stat(subroutesDir, (err, stat) => {
@@ -78,14 +87,7 @@ function addRoutes(routeName, routeDir, options, routes, cb) {
                 cb();
             })
         } else {
-            try {
-                // We should ignore dotfiles
-                if (isDotFile(routeName)) return cb();
-                routes.push(buildRoute(routeDir, routeName, options));
-                cb();
-            } catch(e) {
-                cb(e);
-            }
+            cb();
         }
     });
 }
