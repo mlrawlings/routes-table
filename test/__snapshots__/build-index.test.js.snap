@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`build-index root-and-routes 1`] = `
+Array [
+  Object {
+    "__dirname": "root-and-routes",
+    "handler": [Function],
+    "params": Array [],
+    "path": "/",
+  },
+  Object {
+    "__dirname": "root-and-routes/routes/about",
+    "handler": [Function],
+    "params": Array [],
+    "path": "/about",
+  },
+]
+`;
+
+exports[`build-index root-only 1`] = `
+Array [
+  Object {
+    "__dirname": "root-only",
+    "handler": [Function],
+    "params": Array [],
+    "path": "/",
+  },
+]
+`;
+
+exports[`build-index routes-only 1`] = `
+Array [
+  Object {
+    "__dirname": "routes-only/routes/index",
+    "handler": [Function],
+    "params": Array [],
+    "path": "/",
+  },
+  Object {
+    "__dirname": "routes-only/routes/about",
+    "handler": [Function],
+    "params": Array [],
+    "path": "/about",
+  },
+]
+`;

@@ -53,6 +53,10 @@ function build(dir, options, cb) {
             var remaining = routeNames.length;
             var error;
 
+            if (!remaining) {
+                return cb(new Error('Empty `routes/` directory at ' + path.relative(process.cwd(), dir)));
+            }
+
             routeNames.map(routeName => {
                 var routeDir = path.join(dir, routeName);
                 addRoutes(routeName, routeDir, options, routes, (err) => {
@@ -66,26 +70,22 @@ function build(dir, options, cb) {
 }
 
 function addRoutes(routeName, routeDir, options, routes, cb) {
-    try {
-        // We should ignore dotfiles
-        if (!isDotFile(routeName)) {
-            routes.push(buildRoute(routeDir, routeName, options));
-        }
-    } catch(err) {
-        cb(err);
-    }
-
+    var route = !isDotFile(routeName) && buildRoute(routeDir, routeName, options);
     var subroutesDir = path.join(routeDir, 'routes');
+
+    if (route) routes.push(route);
 
     fs.stat(subroutesDir, (err, stat) => {
         if(!err && stat.isDirectory()) {
-            var subroutesOptions = Object.assign({}, options, { path:options.path+'/'+routeName });
+            var subroutesOptions = Object.assign({}, options, { path:options.path+(routeName ? '/'+routeName : '') });
             return build(subroutesDir, subroutesOptions, (err, subroutes) => {
                 if(err) return cb(err);
 
                 routes.push(subroutes);
                 cb();
             })
+        } else if(!route) {
+            cb(new Error('Expected a `route.js`, template, or `routes/` directory at '+path.relative(process.cwd(), routeDir)));
         } else {
             cb();
         }
@@ -138,8 +138,6 @@ function buildRoute(routeDir, routeName, options) {
             route.path = options.path + route.path;
             return route;
         }
-    } else {
-        throw new Error('All routes under a routes/ directory must export an handler function!\nAt: '+routeDir);
     }
 }
 
