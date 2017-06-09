@@ -1,6 +1,6 @@
 {
   "name": "routes-table",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "discover routes from the filesystem",
   "main": "index.js",
   "scripts": {
