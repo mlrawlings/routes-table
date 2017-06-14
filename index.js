@@ -49,6 +49,8 @@ function build(dir, options, cb) {
 
     if (options.index) {
         delete options.index;
+        if (options.__baseDir) delete options.__baseDir;
+
         addRoutes('', dir, options, routes, (err) => {
             cb(err, normalize(routes));
         });
@@ -69,7 +71,7 @@ function build(dir, options, cb) {
                 }
             }
 
-            if (options.__baseDir) options.__baseDir = false;
+            if (options.__baseDir) delete options.__baseDir;
 
             routeNames.map(routeName => {
                 var routeDir = path.join(dir, routeName);

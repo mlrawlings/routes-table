@@ -5,7 +5,7 @@ const isDotFile = require('../util/isDotFile');
 
 const GIT_DOTFILE = '.file';
 
-describe('build-index-errors', () => {
+describe.only('build-index-errors', () => {
   let structuresDir = path.join(__dirname, 'build-index-errors');
   let files = fs.readdirSync(structuresDir);
   let dotFilePaths = [];
@@ -49,8 +49,9 @@ describe('build-index-errors', () => {
     it(structureName, async () => {
       let error;
       let structureDir = path.join(structuresDir, structureName);
+
       try {
-        await build(structureDir);
+        await build(structureDir, { index: true });
       } catch(e) {
         error = e;
       }
