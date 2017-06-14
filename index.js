@@ -1,25 +1,31 @@
-var fs = require('fs');
-var path = require('path');
-var byKey = require('by-key');
-var sortRoutes = require('sort-routes');
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+const byKey = require('by-key');
+const sortRoutes = require('sort-routes');
+const isDotFile = require('./util/isDotFile');
+
 var validRouteKeys = {
     path:1,
     paths:1,
     params:1,
     handler:1,
     metadata:1,
+    subRoutesExist:1,
     __dirname:1
 };
-
-function isDotFile(routeName) {
-    return (/(^|\/)\.[^\/\.]/g).test(routeName);
-}
 
 exports.build = function(dir, options, cb) {
     if(!cb && typeof options == 'function') {
         cb = options;
         options = {};
+    } else {
+      options = options || {};
     }
+
+    // The current directory that we are walking is the entry directory
+    options.__baseDir = true;
 
     var promise = new Promise((resolve, reject) => {
         build(dir, options, (err, routes) => {
@@ -43,6 +49,8 @@ function build(dir, options, cb) {
 
     if (options.index) {
         delete options.index;
+        if (options.__baseDir) delete options.__baseDir;
+
         addRoutes('', dir, options, routes, (err) => {
             cb(err, normalize(routes));
         });
@@ -54,15 +62,23 @@ function build(dir, options, cb) {
             var error;
 
             if (!remaining) {
-                return cb(new Error('Empty `routes/` directory at ' + path.relative(process.cwd(), dir)));
+                const relativePath = path.relative(process.cwd(), dir);
+
+                if (options.__baseDir) {
+                  return cb(new Error('Expected a `route.js`, template, or `routes/` directory at ' + relativePath));
+                } else {
+                  return cb(new Error('Empty `routes/` directory at ' + relativePath));
+                }
             }
+
+            if (options.__baseDir) delete options.__baseDir;
 
             routeNames.map(routeName => {
                 var routeDir = path.join(dir, routeName);
                 addRoutes(routeName, routeDir, options, routes, (err) => {
                     if (error) return;
                     else if (error = err) cb(err);
-                    else if (!--remaining) cb(err, normalize(routes));
+                    else if (!--remaining) cb(err, normalize(routes))
                 });
             });
         });
@@ -70,22 +86,40 @@ function build(dir, options, cb) {
 }
 
 function addRoutes(routeName, routeDir, options, routes, cb) {
-    var route = !isDotFile(routeName) && buildRoute(routeDir, routeName, options);
+    var route;
     var subroutesDir = path.join(routeDir, 'routes');
 
-    if (route) routes.push(route);
-
     fs.stat(subroutesDir, (err, stat) => {
-        if(!err && stat.isDirectory()) {
+        let isDirectory = false;
+
+        if (!err) {
+          isDirectory = stat.isDirectory();
+        }
+
+        // We should ignore dotfiles
+        if (!isDotFile(routeName)) {
+          try {
+            options.subRoutesExist = isDirectory;
+            route = buildRoute(routeDir, routeName, options);
+            if (route) {
+              routes.push(route);
+            }
+          } catch (e) {
+            // Failed to build route
+            throw e;
+          }
+        }
+
+        if(!err && isDirectory) {
             var subroutesOptions = Object.assign({}, options, { path:options.path+(routeName ? '/'+routeName : '') });
             return build(subroutesDir, subroutesOptions, (err, subroutes) => {
                 if(err) return cb(err);
 
                 routes.push(subroutes);
                 cb();
-            })
+            });
         } else if(!route) {
-            cb(new Error('Expected a `route.js`, template, or `routes/` directory at '+path.relative(process.cwd(), routeDir)));
+          cb(new Error('Expected a `route.js`, template, or `routes/` directory at '+path.relative(process.cwd(), routeDir)));
         } else {
             cb();
         }
@@ -114,12 +148,24 @@ function buildSync(dir, options) {
 function buildRoute(routeDir, routeName, options) {
     var requirePath = path.join(routeDir, 'route.js');
     var route = tryRequire(requirePath);
+
     route.path = route.path || route.paths || '/' + (routeName === 'index' ? '' : routeName);
     route.params = route.params || [];
     route.__dirname = routeDir;
+    route.subRoutesExist = options.subRoutesExist;
 
-    if(options.onRoute) {
-        route = options.onRoute(route) || route;
+    if (options.onRoute) {
+        let onRouteResult = options.onRoute(route);
+
+        if (onRouteResult === false) {
+          return false;
+        } else {
+          route = onRouteResult || route;
+        }
+    }
+
+    if (!route) {
+      return;
     }
 
     Object.keys(route).forEach(key => {
