@@ -3,6 +3,8 @@ const path = require('path');
 const build = require('../').build;
 const isDotFile = require('../util/isDotFile');
 
+const GIT_DOTFILE = '.file';
+
 describe('build-index-errors', () => {
   let structuresDir = path.join(__dirname, 'build-index-errors');
   let files = fs.readdirSync(structuresDir);
@@ -18,7 +20,7 @@ describe('build-index-errors', () => {
     if (files.length > 0) {
       for (var i = 0; i < files.length; i++) {
         var filePath = dirPath + '/' + files[i];
-        if (fs.statSync(filePath).isFile() && isDotFile(filePath)) {
+        if (fs.statSync(filePath).isFile() && filePath.endsWith(GIT_DOTFILE)) {
           dotFilePaths.push(filePath);
           fs.unlinkSync(filePath);
         } else {

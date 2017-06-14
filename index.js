@@ -20,7 +20,12 @@ exports.build = function(dir, options, cb) {
     if(!cb && typeof options == 'function') {
         cb = options;
         options = {};
+    } else {
+      options = options || {};
     }
+
+    // The current directory that we are walking is the entry directory
+    options.__baseDir = true;
 
     var promise = new Promise((resolve, reject) => {
         build(dir, options, (err, routes) => {
@@ -55,8 +60,16 @@ function build(dir, options, cb) {
             var error;
 
             if (!remaining) {
-                return cb(new Error('Empty `routes/` directory at ' + path.relative(process.cwd(), dir)));
+                const relativePath = path.relative(process.cwd(), dir);
+
+                if (options.__baseDir) {
+                  return cb(new Error('Expected a `route.js`, template, or `routes/` directory at ' + relativePath));
+                } else {
+                  return cb(new Error('Empty `routes/` directory at ' + relativePath));
+                }
             }
+
+            if (options.__baseDir) options.__baseDir = false;
 
             routeNames.map(routeName => {
                 var routeDir = path.join(dir, routeName);

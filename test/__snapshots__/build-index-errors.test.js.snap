@@ -2,4 +2,4 @@
 
 exports[`build-index-errors empty-routes 1`] = `[Error: Expected a \`route.js\`, template, or \`routes/\` directory at test/build-index-errors/empty-routes/routes]`;
 
-exports[`build-index-errors no-routes 1`] = `[Error: Empty \`routes/\` directory at test/build-index-errors/no-routes]`;
+exports[`build-index-errors no-routes 1`] = `[Error: Expected a \`route.js\`, template, or \`routes/\` directory at test/build-index-errors/no-routes]`;
