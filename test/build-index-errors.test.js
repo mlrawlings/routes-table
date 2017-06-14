@@ -1,15 +1,54 @@
 const fs = require('fs');
 const path = require('path');
 const build = require('../').build;
+const isDotFile = require('../util/isDotFile');
 
 describe('build-index-errors', () => {
   let structuresDir = path.join(__dirname, 'build-index-errors');
-  fs.readdirSync(structuresDir).forEach(structureName => {
+  let files = fs.readdirSync(structuresDir);
+  let dotFilePaths = [];
+
+  function removeDotFiles (dirPath) {
+    try {
+      var files = fs.readdirSync(dirPath);
+    } catch(e) {
+      return;
+    }
+
+    if (files.length > 0) {
+      for (var i = 0; i < files.length; i++) {
+        var filePath = dirPath + '/' + files[i];
+        if (fs.statSync(filePath).isFile() && isDotFile(filePath)) {
+          dotFilePaths.push(filePath);
+          fs.unlinkSync(filePath);
+        } else {
+          removeDotFiles(filePath);
+        }
+      }
+    }
+  }
+
+  beforeAll(() => {
+    // Find all dotfiles and remove them
+    files.forEach((structureName) => {
+      let structureDir = path.join(structuresDir, structureName);
+      removeDotFiles(structureDir);
+    });
+  });
+
+  afterAll(() => {
+    // Add back the dotfiles
+    dotFilePaths.forEach((dotFilePath) => {
+      fs.closeSync(fs.openSync(dotFilePath, 'w'));
+    });
+  });
+
+  files.forEach(structureName => {
     it(structureName, async () => {
       let error;
       let structureDir = path.join(structuresDir, structureName);
       try {
-        await build(structureDir, { index:true });
+        await build(structureDir);
       } catch(e) {
         error = e;
       }

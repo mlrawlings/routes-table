@@ -1,9 +1,11 @@
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
-var byKey = require('by-key');
-var sortRoutes = require('sort-routes');
+const fs = require('fs');
+const path = require('path');
+const byKey = require('by-key');
+const sortRoutes = require('sort-routes');
+const isDotFile = require('./util/isDotFile');
+
 var validRouteKeys = {
     path:1,
     paths:1,
@@ -13,10 +15,6 @@ var validRouteKeys = {
     subRoutesExist:1,
     __dirname:1
 };
-
-function isDotFile(routeName) {
-    return (/(^|\/)\.[^\/\.]/g).test(routeName);
-}
 
 exports.build = function(dir, options, cb) {
     if(!cb && typeof options == 'function') {
@@ -65,7 +63,7 @@ function build(dir, options, cb) {
                 addRoutes(routeName, routeDir, options, routes, (err) => {
                     if (error) return;
                     else if (error = err) cb(err);
-                    else if (!--remaining) cb(err, normalize(routes));
+                    else if (!--remaining) cb(err, normalize(routes))
                 });
             });
         });
