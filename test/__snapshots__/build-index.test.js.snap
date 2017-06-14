@@ -7,12 +7,14 @@ Array [
     "handler": [Function],
     "params": Array [],
     "path": "/",
+    "subRoutesExist": true,
   },
   Object {
     "__dirname": "root-and-routes/routes/about",
     "handler": [Function],
     "params": Array [],
     "path": "/about",
+    "subRoutesExist": false,
   },
 ]
 `;
@@ -24,6 +26,26 @@ Array [
     "handler": [Function],
     "params": Array [],
     "path": "/",
+    "subRoutesExist": false,
+  },
+]
+`;
+
+exports[`build-index routes-children 1`] = `
+Array [
+  Object {
+    "__dirname": "routes-children/routes/blog/routes/index",
+    "handler": [Function],
+    "params": Array [],
+    "path": "/blog/",
+    "subRoutesExist": false,
+  },
+  Object {
+    "__dirname": "routes-children/routes/blog/routes/post",
+    "handler": [Function],
+    "params": Array [],
+    "path": "/blog/post",
+    "subRoutesExist": false,
   },
 ]
 `;
@@ -35,12 +57,14 @@ Array [
     "handler": [Function],
     "params": Array [],
     "path": "/",
+    "subRoutesExist": false,
   },
   Object {
     "__dirname": "routes-only/routes/about",
     "handler": [Function],
     "params": Array [],
     "path": "/about",
+    "subRoutesExist": false,
   },
 ]
 `;
