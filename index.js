@@ -89,6 +89,11 @@ function addRoutes(routeName, routeDir, options, routes, cb) {
     var route;
     var subroutesDir = path.join(routeDir, 'routes');
 
+    // We should ignore dotfiles
+    if (isDotFile(routeName)) {
+      return cb();
+    }
+
     fs.stat(subroutesDir, (err, stat) => {
         let isDirectory = false;
 
@@ -96,18 +101,15 @@ function addRoutes(routeName, routeDir, options, routes, cb) {
           isDirectory = stat.isDirectory();
         }
 
-        // We should ignore dotfiles
-        if (!isDotFile(routeName)) {
-          try {
-            options.subRoutesExist = isDirectory;
-            route = buildRoute(routeDir, routeName, options);
-            if (route) {
-              routes.push(route);
-            }
-          } catch (e) {
-            // Failed to build route
-            throw e;
+        try {
+          options.subRoutesExist = isDirectory;
+          route = buildRoute(routeDir, routeName, options);
+          if (route) {
+            routes.push(route);
           }
+        } catch (e) {
+          // Failed to build route
+          throw e;
         }
 
         if(!err && isDirectory) {

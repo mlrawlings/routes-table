@@ -50,6 +50,18 @@ Array [
 ]
 `;
 
+exports[`build-index routes-nested-dotfile 1`] = `
+Array [
+  Object {
+    "__dirname": "routes-nested-dotfile/routes/index",
+    "handler": [Function],
+    "params": Array [],
+    "path": "/",
+    "subRoutesExist": false,
+  },
+]
+`;
+
 exports[`build-index routes-only 1`] = `
 Array [
   Object {
@@ -64,6 +76,18 @@ Array [
     "handler": [Function],
     "params": Array [],
     "path": "/about",
+    "subRoutesExist": false,
+  },
+]
+`;
+
+exports[`build-index routes-root-dotfile 1`] = `
+Array [
+  Object {
+    "__dirname": "routes-root-dotfile/routes/index",
+    "handler": [Function],
+    "params": Array [],
+    "path": "/",
     "subRoutesExist": false,
   },
 ]
