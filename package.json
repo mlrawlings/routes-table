@@ -3,6 +3,10 @@
   "version": "1.2.5",
   "description": "discover routes from the filesystem",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mlrawlings/routes-table.git"
+  },
   "scripts": {
     "test": "jest"
   },
